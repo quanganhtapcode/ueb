@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { onAuthStateChanged, signInWithRedirect, getRedirectResult, signOut as firebaseSignOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
 import type { User } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
 
@@ -29,16 +29,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    // Pick up the result after redirect back from Google
-    getRedirectResult(auth).catch((error) => {
-      console.error('Redirect sign-in error:', error);
-    });
-
     return unsubscribe;
   }, []);
 
   const signInWithGoogle = async () => {
-    await signInWithRedirect(auth, googleProvider);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      if (result.user.email && !result.user.email.endsWith('@vnu.edu.vn')) {
+        await firebaseSignOut(auth);
+        throw new Error('Chỉ cho phép đăng nhập với email @vnu.edu.vn');
+      }
+    } catch (error) {
+      console.error('Error signing in with Google:', error);
+      throw error;
+    }
   };
 
   const signOut = async () => {
