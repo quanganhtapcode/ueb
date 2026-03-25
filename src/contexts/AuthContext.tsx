@@ -13,16 +13,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function isAllowedVnuEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return /^[^@\s]+@([a-z0-9-]+\.)*vnu\.edu\.vn$/i.test(email);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser && firebaseUser.email && !firebaseUser.email.endsWith('@vnu.edu.vn')) {
+      if (firebaseUser && !isAllowedVnuEmail(firebaseUser.email)) {
         await firebaseSignOut(auth);
         setUser(null);
-        alert('Chỉ cho phép đăng nhập với email @vnu.edu.vn');
+        alert('Chỉ cho phép đăng nhập với email VNU (@vnu.edu.vn hoặc subdomain).');
       } else {
         setUser(firebaseUser);
       }
@@ -35,9 +40,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      if (result.user.email && !result.user.email.endsWith('@vnu.edu.vn')) {
+      if (!isAllowedVnuEmail(result.user.email)) {
         await firebaseSignOut(auth);
-        throw new Error('Chỉ cho phép đăng nhập với email @vnu.edu.vn');
+        throw new Error('Chỉ cho phép đăng nhập với email VNU (@vnu.edu.vn hoặc subdomain).');
       }
     } catch (error) {
       console.error('Error signing in with Google:', error);
