@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 
@@ -134,9 +135,9 @@ export default function LoginPage() {
 
           <p className="text-center text-xs text-slate-400">
             Bằng cách đăng nhập, bạn đồng ý với{' '}
-            <span className="underline cursor-pointer hover:text-slate-600">Điều khoản sử dụng</span>
+            <Link to="/disclaimer" className="underline hover:text-slate-600">Điều khoản sử dụng</Link>
             {' '}và{' '}
-            <span className="underline cursor-pointer hover:text-slate-600">Chính sách bảo mật</span>
+            <Link to="/privacy" className="underline hover:text-slate-600">Chính sách bảo mật</Link>
           </p>
         </div>
       </div>

@@ -3,6 +3,8 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import LoginPage from '@/pages/LoginPage';
 import DashboardPage from '@/pages/DashboardPage';
+import DisclaimerPage from '@/pages/DisclaimerPage';
+import PrivacyPage from '@/pages/PrivacyPage';
 import './App.css';
 
 function App() {
@@ -19,6 +21,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/disclaimer" element={<DisclaimerPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AuthProvider>
