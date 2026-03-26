@@ -17,9 +17,9 @@ export default function LoginPage() {
       setIsLoading(true);
       setError(null);
       await signInWithGoogle();
-      // Page will redirect to Google — code below only runs if redirect throws
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi đăng nhập');
+    } finally {
       setIsLoading(false);
     }
   };

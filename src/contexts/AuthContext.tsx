@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { onAuthStateChanged, signInWithRedirect, getRedirectResult, signOut as firebaseSignOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
 import type { User } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
 import { AuthContext } from '@/contexts/auth-context';
@@ -15,10 +15,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getRedirectResult(auth).catch((error) => {
-      console.error('Error getting redirect result:', error);
-    });
-
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser && !isAllowedVnuEmail(firebaseUser.email)) {
         await firebaseSignOut(auth);
@@ -35,7 +31,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
-      await signInWithRedirect(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      if (!isAllowedVnuEmail(result.user.email)) {
+        await firebaseSignOut(auth);
+        throw new Error('Chỉ cho phép đăng nhập với email VNU (@vnu.edu.vn hoặc subdomain).');
+      }
     } catch (error) {
       console.error('Error signing in with Google:', error);
       throw error;
