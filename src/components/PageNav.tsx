@@ -9,13 +9,14 @@ const links = [
 
 export default function PageNav() {
   return (
-    <nav className="flex flex-wrap gap-2">
+    <nav className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
+      <div className="flex w-max min-w-full gap-2 pb-1 md:min-w-0">
       {links.map((link) => (
         <NavLink
           key={link.to}
           to={link.to}
           className={({ isActive }) =>
-            `rounded-md border px-3 py-1.5 text-sm transition-colors ${
+            `rounded-full border px-3 py-1.5 text-sm whitespace-nowrap transition-colors ${
               isActive
                 ? 'border-primary bg-primary text-primary-foreground'
                 : 'border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground'
@@ -25,6 +26,7 @@ export default function PageNav() {
           {link.label}
         </NavLink>
       ))}
+      </div>
     </nav>
   );
 }

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -157,33 +156,21 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold">UEB Trading Platform</h1>
+            <h1 className="text-xl font-bold md:text-2xl">UEB Trading Platform</h1>
             <p className="text-sm text-muted-foreground">Single-product market · Real-time bid/ask view</p>
             <div className="mt-3">
               <PageNav />
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1 rounded-md border bg-background px-2 py-1">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/orders">Orders</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/matches">Matches</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/messages">Messages</Link>
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="text-right">
+          <div className="flex items-center justify-between gap-3 rounded-xl border bg-background/80 p-3 md:justify-end md:rounded-none md:border-0 md:bg-transparent md:p-0">
+            <div className="min-w-0">
               <p className="text-xs text-muted-foreground">Đăng nhập bởi</p>
-              <p className="text-sm font-medium">{user?.email}</p>
+              <p className="truncate text-sm font-medium max-w-[180px] sm:max-w-[260px]">{user?.email}</p>
             </div>
-            <Button variant="outline" onClick={handleSignOut}>
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
               Đăng xuất
             </Button>
           </div>
@@ -198,7 +185,7 @@ export default function DashboardPage() {
                 <CardTitle className="text-xl">{SINGLE_PRODUCT_SYMBOL}</CardTitle>
                 <p className="mt-1 text-sm text-muted-foreground">{SINGLE_PRODUCT_NAME}</p>
               </div>
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <div>
                   <p className="text-xs text-muted-foreground">Best Bid / Ask</p>
                   <p className="text-sm font-medium">
@@ -224,8 +211,8 @@ export default function DashboardPage() {
           </CardHeader>
         </Card>
 
-        <div className="grid gap-6 lg:grid-cols-12">
-          <Card className="lg:col-span-5">
+        <div className="grid gap-4 lg:grid-cols-12">
+          <Card className="order-2 lg:order-1 lg:col-span-5">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Sổ lệnh (Order Book)</CardTitle>
               {orderBookLoading && <p className="text-xs text-muted-foreground">Đang tải dữ liệu realtime...</p>}
@@ -274,7 +261,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="lg:col-span-4">
+          <Card className="order-1 lg:order-2 lg:col-span-4">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Đặt lệnh</CardTitle>
             </CardHeader>
@@ -361,7 +348,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="lg:col-span-3">
+          <Card className="order-3 lg:col-span-3">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Tóm tắt thị trường</CardTitle>
             </CardHeader>

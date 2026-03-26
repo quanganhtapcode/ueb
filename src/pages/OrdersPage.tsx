@@ -60,20 +60,20 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto max-w-7xl px-4 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Đơn hàng của tôi</h1>
+            <h1 className="text-xl font-bold md:text-2xl">Đơn hàng của tôi</h1>
             <p className="text-sm text-muted-foreground">Theo dõi lệnh open, matched và cancelled.</p>
             <div className="mt-3">
               <PageNav />
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
+          <div className="flex items-center justify-between gap-3 rounded-xl border bg-background/80 p-3 md:justify-end md:rounded-none md:border-0 md:bg-transparent md:p-0">
+            <div className="min-w-0">
               <p className="text-xs text-muted-foreground">Đăng nhập bởi</p>
-              <p className="text-sm font-medium">{user?.email}</p>
+              <p className="truncate text-sm font-medium max-w-[180px] sm:max-w-[260px]">{user?.email}</p>
             </div>
-            <Button variant="outline" onClick={handleSignOut}>
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
               Đăng xuất
             </Button>
           </div>
@@ -98,7 +98,7 @@ export default function OrdersPage() {
         )}
 
         {!loading && !error && (
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-4 lg:grid-cols-3">
             {([
               { key: 'open', title: 'Open', data: groups.open },
               { key: 'matched', title: 'Matched', data: groups.matched },

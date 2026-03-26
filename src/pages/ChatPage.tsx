@@ -77,20 +77,20 @@ export default function ChatPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto max-w-7xl px-4 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Chi tiết chat</h1>
+            <h1 className="text-xl font-bold md:text-2xl">Chi tiết chat</h1>
             <p className="text-sm text-muted-foreground">Chat ID: {chatId || '—'}</p>
             <div className="mt-3">
               <PageNav />
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
+          <div className="flex items-center justify-between gap-3 rounded-xl border bg-background/80 p-3 md:justify-end md:rounded-none md:border-0 md:bg-transparent md:p-0">
+            <div className="min-w-0">
               <p className="text-xs text-muted-foreground">Đăng nhập bởi</p>
-              <p className="text-sm font-medium">{user?.email}</p>
+              <p className="truncate text-sm font-medium max-w-[180px] sm:max-w-[260px]">{user?.email}</p>
             </div>
-            <Button variant="outline" onClick={handleSignOut}>
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
               Đăng xuất
             </Button>
           </div>
@@ -100,7 +100,7 @@ export default function ChatPage() {
       <main className="mx-auto max-w-4xl px-4 py-6 space-y-6">
         <Card>
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <CardTitle className="text-lg">Thread</CardTitle>
               <Button asChild variant="outline" size="sm">
                 <Link to="/messages">Quay lại danh sách chat</Link>
@@ -121,7 +121,7 @@ export default function ChatPage() {
                 return (
                   <div
                     key={message.id}
-                    className={`max-w-[80%] rounded-lg border p-3 text-sm ${
+                    className={`max-w-[88%] sm:max-w-[80%] rounded-lg border p-3 text-sm ${
                       isMine ? 'ml-auto bg-primary/10' : 'bg-muted'
                     }`}
                   >
@@ -138,14 +138,14 @@ export default function ChatPage() {
             <CardTitle className="text-base">Gửi tin nhắn</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <Input
                 placeholder="Nhập nội dung..."
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
                 disabled={sending}
               />
-              <Button onClick={handleSend} disabled={sending || !draft.trim()}>
+              <Button className="sm:w-auto w-full" onClick={handleSend} disabled={sending || !draft.trim()}>
                 {sending ? 'Đang gửi...' : 'Gửi'}
               </Button>
             </div>
