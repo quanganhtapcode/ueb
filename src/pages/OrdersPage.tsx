@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import PageNav from '@/components/PageNav';
+import AppLayout from '@/components/AppLayout';
 import { useAuth } from '@/contexts/useAuth';
 import { subscribeMyOrders } from '@/lib/market';
 import type { MarketOrder } from '@/lib/types';
@@ -11,127 +9,128 @@ function formatDateTime(value: Date | null): string {
   return value.toLocaleString('vi-VN');
 }
 
-function statusText(order: MarketOrder): string {
-  if (order.status === 'open') return 'Open';
-  if (order.status === 'cancelled') return 'Cancelled';
-  return 'Matched';
+function statusLabel(order: MarketOrder): { text: string; cls: string } {
+  if (order.status === 'open') return { text: 'Open', cls: 'bg-blue-50 text-blue-700' };
+  if (order.status === 'cancelled') return { text: 'Huỷ', cls: 'bg-gray-100 text-gray-500' };
+  return { text: 'Khớp', cls: 'bg-emerald-50 text-emerald-700' };
+}
+
+function OrderRow({ order }: { order: MarketOrder }) {
+  const { text, cls } = statusLabel(order);
+  const isBuy = order.side === 'buy';
+  return (
+    <tr className="border-b border-gray-100 last:border-0 hover:bg-gray-50/60 transition-colors">
+      <td className="px-5 py-3">
+        <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${isBuy ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-600'}`}>
+          {isBuy ? 'Mua' : 'Bán'}
+        </span>
+      </td>
+      <td className="px-5 py-3 text-sm tabular-nums text-gray-900 font-medium">{order.price.toFixed(2)}</td>
+      <td className="px-5 py-3 text-sm tabular-nums text-gray-700">{order.quantity}</td>
+      <td className="px-5 py-3 text-sm tabular-nums text-gray-500">{order.remainingQuantity}</td>
+      <td className="px-5 py-3">
+        <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${cls}`}>{text}</span>
+      </td>
+      <td className="px-5 py-3 text-xs text-gray-400 whitespace-nowrap">{formatDateTime(order.createdAt)}</td>
+    </tr>
+  );
 }
 
 export default function OrdersPage() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [orders, setOrders] = useState<MarketOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
-
     const unsubscribe = subscribeMyOrders(
       user.uid,
-      (nextOrders) => {
-        setOrders(nextOrders);
-        setError(null);
-        setLoading(false);
-      },
-      (nextError) => {
-        setError(nextError.message);
-        setLoading(false);
-      },
+      (nextOrders) => { setOrders(nextOrders); setError(null); setLoading(false); },
+      (nextError) => { setError(nextError.message); setLoading(false); },
     );
-
     return unsubscribe;
   }, [user]);
 
   const groups = useMemo(() => {
-    const open = orders.filter((order) => order.status === 'open');
-    const matched = orders.filter((order) => order.status === 'partial' || order.status === 'filled');
-    const cancelled = orders.filter((order) => order.status === 'cancelled');
+    const open = orders.filter((o) => o.status === 'open');
+    const matched = orders.filter((o) => o.status === 'partial' || o.status === 'filled');
+    const cancelled = orders.filter((o) => o.status === 'cancelled');
     return { open, matched, cancelled };
   }, [orders]);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (signOutError) {
-      setError(signOutError instanceof Error ? signOutError.message : 'Không thể đăng xuất.');
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-xl font-bold md:text-2xl">Đơn hàng của tôi</h1>
-            <p className="text-sm text-muted-foreground">Theo dõi lệnh open, matched và cancelled.</p>
-            <div className="mt-3">
-              <PageNav />
-            </div>
+    <AppLayout>
+      <div className="mb-6">
+        <h1 className="text-lg font-semibold text-gray-900">Đơn hàng</h1>
+        <p className="mt-0.5 text-sm text-gray-500">Theo dõi lệnh mở, đã khớp và đã huỷ.</p>
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        {[
+          { label: 'Đang mở', count: groups.open.length, cls: 'text-blue-600' },
+          { label: 'Đã khớp', count: groups.matched.length, cls: 'text-emerald-600' },
+          { label: 'Đã huỷ', count: groups.cancelled.length, cls: 'text-gray-500' },
+        ].map((item) => (
+          <div key={item.label} className="bg-white rounded-xl border border-gray-200 px-4 py-4 shadow-sm">
+            <p className="text-xs text-gray-500">{item.label}</p>
+            <p className={`mt-1 text-2xl font-semibold tabular-nums ${item.cls}`}>{item.count}</p>
           </div>
-          <div className="flex items-center justify-between gap-3 rounded-xl border bg-background/80 p-3 md:justify-end md:rounded-none md:border-0 md:bg-transparent md:p-0">
-            <div className="min-w-0">
-              <p className="text-xs text-muted-foreground">Đăng nhập bởi</p>
-              <p className="truncate text-sm font-medium max-w-[180px] sm:max-w-[260px]">{user?.email}</p>
-            </div>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              Đăng xuất
-            </Button>
-          </div>
+        ))}
+      </div>
+
+      {loading && (
+        <div className="bg-white rounded-xl border border-gray-200 px-5 py-10 text-center shadow-sm">
+          <p className="text-sm text-gray-400">Đang tải đơn hàng...</p>
         </div>
-      </header>
+      )}
 
-      <main className="mx-auto max-w-7xl px-4 py-6 space-y-6">
-        {loading && (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Đang tải đơn hàng...</p>
-            </CardContent>
-          </Card>
-        )}
+      {error && (
+        <div className="bg-white rounded-xl border border-rose-200 px-5 py-4 shadow-sm">
+          <p className="text-sm text-rose-600">Lỗi: {error}</p>
+        </div>
+      )}
 
-        {error && (
-          <Card className="border-destructive/30">
-            <CardContent className="pt-6">
-              <p className="text-sm text-destructive">Lỗi tải đơn hàng: {error}</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {!loading && !error && (
-          <div className="grid gap-4 lg:grid-cols-3">
-            {([
-              { key: 'open', title: 'Open', data: groups.open },
-              { key: 'matched', title: 'Matched', data: groups.matched },
-              { key: 'cancelled', title: 'Cancelled', data: groups.cancelled },
-            ] as const).map((section) => (
-              <Card key={section.key}>
-                <CardHeader>
-                  <CardTitle className="text-lg">
-                    {section.title} ({section.data.length})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {section.data.length === 0 && (
-                    <p className="text-sm text-muted-foreground">Không có đơn hàng.</p>
-                  )}
-                  {section.data.map((order) => (
-                    <div key={order.id} className="rounded-md border p-3 space-y-1 text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium uppercase">{order.side}</span>
-                        <span className="text-muted-foreground">{statusText(order)}</span>
-                      </div>
-                      <p>Giá: {order.price}</p>
-                      <p>Khối lượng: {order.quantity}</p>
-                      <p>Còn lại: {order.remainingQuantity}</p>
-                      <p className="text-xs text-muted-foreground">{formatDateTime(order.createdAt)}</p>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </main>
-    </div>
+      {!loading && !error && (
+        <div className="space-y-4">
+          {([
+            { key: 'open', title: 'Đang mở', data: groups.open },
+            { key: 'matched', title: 'Đã khớp', data: groups.matched },
+            { key: 'cancelled', title: 'Đã huỷ', data: groups.cancelled },
+          ] as const).map((section) => (
+            <div key={section.key} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
+                <h2 className="text-sm font-semibold text-gray-900">{section.title}</h2>
+                <span className="text-xs text-gray-400">{section.data.length} lệnh</span>
+              </div>
+              {section.data.length === 0 ? (
+                <p className="px-5 py-6 text-sm text-gray-400">Không có đơn hàng.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-gray-100">
+                        <th className="px-5 py-2.5 text-xs font-medium text-gray-400 uppercase tracking-wide">Loại</th>
+                        <th className="px-5 py-2.5 text-xs font-medium text-gray-400 uppercase tracking-wide">Giá</th>
+                        <th className="px-5 py-2.5 text-xs font-medium text-gray-400 uppercase tracking-wide">KL</th>
+                        <th className="px-5 py-2.5 text-xs font-medium text-gray-400 uppercase tracking-wide">Còn lại</th>
+                        <th className="px-5 py-2.5 text-xs font-medium text-gray-400 uppercase tracking-wide">Trạng thái</th>
+                        <th className="px-5 py-2.5 text-xs font-medium text-gray-400 uppercase tracking-wide">Thời gian</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {section.data.map((order) => (
+                        <OrderRow key={order.id} order={order} />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </AppLayout>
   );
 }

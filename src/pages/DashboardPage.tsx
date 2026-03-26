@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import PageNav from '@/components/PageNav';
-import { useAuth } from '@/contexts/useAuth';
+import AppLayout from '@/components/AppLayout';
 import { placeOrder, subscribeOrderBook } from '@/lib/market';
 import { SINGLE_PRODUCT_NAME, SINGLE_PRODUCT_SYMBOL, type OrderBookView } from '@/lib/types';
+import { useAuth } from '@/contexts/useAuth';
 
 type StatusTone = 'idle' | 'loading' | 'success' | 'error';
 
@@ -18,14 +16,12 @@ const IDLE_STATUS: FormStatus = { tone: 'idle', message: '' };
 
 function toPositiveNumber(value: string): number | null {
   const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return null;
-  }
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
   return parsed;
 }
 
 export default function DashboardPage() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
 
   const [bidPrice, setBidPrice] = useState('104.6');
   const [bidVolume, setBidVolume] = useState('10');
@@ -51,326 +47,252 @@ export default function DashboardPage() {
         setOrderBookError(error.message);
       },
     );
-
     return unsubscribe;
   }, []);
 
   const marketSummary = useMemo(() => {
     const bestBid = orderBook.bids[0]?.price ?? null;
     const bestAsk = orderBook.asks[0]?.price ?? null;
-
     const spread = bestBid !== null && bestAsk !== null ? bestAsk - bestBid : null;
     const midpoint = bestBid !== null && bestAsk !== null ? (bestBid + bestAsk) / 2 : null;
     const bidDepth = orderBook.bids.reduce((sum, level) => sum + level.quantity, 0);
     const askDepth = orderBook.asks.reduce((sum, level) => sum + level.quantity, 0);
-
-    return {
-      bestBid,
-      bestAsk,
-      spread,
-      midpoint,
-      bidDepth,
-      askDepth,
-    };
+    return { bestBid, bestAsk, spread, midpoint, bidDepth, askDepth };
   }, [orderBook]);
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
 
   const handlePlaceBid = async () => {
     const price = toPositiveNumber(bidPrice);
     const quantity = toPositiveNumber(bidVolume);
-
     if (price === null || quantity === null) {
-      setBidStatus({ tone: 'error', message: 'Giá và khối lượng mua phải là số dương.' });
+      setBidStatus({ tone: 'error', message: 'Giá và khối lượng phải là số dương.' });
       return;
     }
-
     if (!user) {
-      setBidStatus({ tone: 'error', message: 'Bạn cần đăng nhập để đặt lệnh mua.' });
+      setBidStatus({ tone: 'error', message: 'Bạn cần đăng nhập.' });
       return;
     }
-
-    setBidStatus({ tone: 'loading', message: 'Đang gửi lệnh mua...' });
-
+    setBidStatus({ tone: 'loading', message: '' });
     try {
       const order = await placeOrder('buy', price, quantity, {
         uid: user.uid,
         email: user.email,
         displayName: user.displayName,
       });
-      setBidStatus({ tone: 'success', message: `Đã đặt lệnh mua thành công (#${order.id.slice(0, 8)}).` });
+      setBidStatus({ tone: 'success', message: `Đặt mua thành công #${order.id.slice(0, 8)}` });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể đặt lệnh mua. Vui lòng thử lại.';
-      setBidStatus({ tone: 'error', message });
+      setBidStatus({ tone: 'error', message: error instanceof Error ? error.message : 'Lỗi đặt lệnh mua.' });
     }
   };
 
   const handlePlaceAsk = async () => {
     const price = toPositiveNumber(askPrice);
     const quantity = toPositiveNumber(askVolume);
-
     if (price === null || quantity === null) {
-      setAskStatus({ tone: 'error', message: 'Giá và khối lượng bán phải là số dương.' });
+      setAskStatus({ tone: 'error', message: 'Giá và khối lượng phải là số dương.' });
       return;
     }
-
     if (!user) {
-      setAskStatus({ tone: 'error', message: 'Bạn cần đăng nhập để đặt lệnh bán.' });
+      setAskStatus({ tone: 'error', message: 'Bạn cần đăng nhập.' });
       return;
     }
-
-    setAskStatus({ tone: 'loading', message: 'Đang gửi lệnh bán...' });
-
+    setAskStatus({ tone: 'loading', message: '' });
     try {
       const order = await placeOrder('sell', price, quantity, {
         uid: user.uid,
         email: user.email,
         displayName: user.displayName,
       });
-      setAskStatus({ tone: 'success', message: `Đã đặt lệnh bán thành công (#${order.id.slice(0, 8)}).` });
+      setAskStatus({ tone: 'success', message: `Đặt bán thành công #${order.id.slice(0, 8)}` });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể đặt lệnh bán. Vui lòng thử lại.';
-      setAskStatus({ tone: 'error', message });
+      setAskStatus({ tone: 'error', message: error instanceof Error ? error.message : 'Lỗi đặt lệnh bán.' });
     }
-  };
-
-  const statusClassName = (tone: StatusTone): string => {
-    if (tone === 'success') {
-      return 'text-emerald-700';
-    }
-    if (tone === 'error') {
-      return 'text-rose-700';
-    }
-    if (tone === 'loading') {
-      return 'text-muted-foreground';
-    }
-    return 'text-muted-foreground';
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between">
+    <AppLayout>
+      {/* Page header */}
+      <div className="mb-6">
+        <h1 className="text-lg font-semibold text-gray-900">{SINGLE_PRODUCT_SYMBOL}</h1>
+        <p className="mt-0.5 text-sm text-gray-500">{SINGLE_PRODUCT_NAME} · Thị trường thời gian thực</p>
+      </div>
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-6">
+        {[
+          { label: 'Best Bid', value: marketSummary.bestBid?.toFixed(2) ?? '—', cls: 'text-emerald-600' },
+          { label: 'Best Ask', value: marketSummary.bestAsk?.toFixed(2) ?? '—', cls: 'text-rose-500' },
+          { label: 'Mid Price', value: marketSummary.midpoint?.toFixed(2) ?? '—', cls: 'text-gray-900' },
+          { label: 'Spread', value: marketSummary.spread?.toFixed(2) ?? '—', cls: 'text-gray-900' },
+        ].map((stat) => (
+          <div key={stat.label} className="bg-white rounded-xl border border-gray-200 px-4 py-4 shadow-sm">
+            <p className="text-xs text-gray-500">{stat.label}</p>
+            <p className={`mt-1 text-2xl font-semibold tabular-nums tracking-tight ${stat.cls}`}>{stat.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Main grid */}
+      <div className="grid gap-4 lg:grid-cols-12">
+        {/* Order book */}
+        <div className="lg:col-span-7 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
+            <h2 className="text-sm font-semibold text-gray-900">Sổ lệnh</h2>
+            {orderBookLoading && <span className="text-xs text-gray-400">Đang tải...</span>}
+            {orderBookError && <span className="text-xs text-rose-500">{orderBookError}</span>}
+            {!orderBookLoading && !orderBookError && (
+              <span className="flex items-center gap-1.5 text-xs text-gray-400">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                Trực tiếp
+              </span>
+            )}
+          </div>
+
+          {/* Asks */}
           <div>
-            <h1 className="text-xl font-bold md:text-2xl">UEB Trading Platform</h1>
-            <p className="text-sm text-muted-foreground">Single-product market · Real-time bid/ask view</p>
-            <div className="mt-3">
-              <PageNav />
+            <div className="grid grid-cols-3 px-5 py-2">
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Giá bán</span>
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wide text-center">SL</span>
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wide text-right">Tổng</span>
+            </div>
+            <div>
+              {orderBook.asks.length === 0 ? (
+                <p className="px-5 py-3 text-xs text-gray-400">Chưa có lệnh bán</p>
+              ) : (
+                [...orderBook.asks].reverse().map((row) => (
+                  <div
+                    key={`ask-${row.price}`}
+                    className="grid grid-cols-3 px-5 py-1.5 hover:bg-rose-50/50 transition-colors"
+                  >
+                    <span className="text-sm font-medium text-rose-500 tabular-nums">{row.price.toFixed(2)}</span>
+                    <span className="text-sm text-gray-700 text-center tabular-nums">{row.quantity}</span>
+                    <span className="text-sm text-gray-400 text-right tabular-nums">{(row.price * row.quantity).toFixed(2)}</span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-3 rounded-xl border bg-background/80 p-3 md:justify-end md:rounded-none md:border-0 md:bg-transparent md:p-0">
-            <div className="min-w-0">
-              <p className="text-xs text-muted-foreground">Đăng nhập bởi</p>
-              <p className="truncate text-sm font-medium max-w-[180px] sm:max-w-[260px]">{user?.email}</p>
+          {/* Spread divider */}
+          <div className="flex items-center gap-4 px-5 py-2 bg-gray-50 border-y border-gray-100">
+            <span className="text-xs text-gray-400">Spread</span>
+            <span className="text-xs font-semibold text-gray-700 tabular-nums">{marketSummary.spread?.toFixed(2) ?? '—'}</span>
+            <span className="text-gray-300">·</span>
+            <span className="text-xs text-gray-400">Mid</span>
+            <span className="text-xs font-semibold text-gray-700 tabular-nums">{marketSummary.midpoint?.toFixed(2) ?? '—'}</span>
+            <span className="text-gray-300">·</span>
+            <span className="text-xs text-gray-400">Depth</span>
+            <span className="text-xs font-semibold text-gray-700 tabular-nums">{marketSummary.bidDepth}/{marketSummary.askDepth}</span>
+          </div>
+
+          {/* Bids */}
+          <div>
+            <div className="grid grid-cols-3 px-5 py-2">
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Giá mua</span>
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wide text-center">SL</span>
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wide text-right">Tổng</span>
             </div>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              Đăng xuất
-            </Button>
+            <div>
+              {orderBook.bids.length === 0 ? (
+                <p className="px-5 py-3 text-xs text-gray-400">Chưa có lệnh mua</p>
+              ) : (
+                orderBook.bids.map((row) => (
+                  <div
+                    key={`bid-${row.price}`}
+                    className="grid grid-cols-3 px-5 py-1.5 hover:bg-emerald-50/50 transition-colors"
+                  >
+                    <span className="text-sm font-medium text-emerald-600 tabular-nums">{row.price.toFixed(2)}</span>
+                    <span className="text-sm text-gray-700 text-center tabular-nums">{row.quantity}</span>
+                    <span className="text-sm text-gray-400 text-right tabular-nums">{(row.price * row.quantity).toFixed(2)}</span>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
-      </header>
 
-      <main className="mx-auto max-w-7xl space-y-6 px-4 py-6">
-        <Card>
-          <CardHeader className="pb-4">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <CardTitle className="text-xl">{SINGLE_PRODUCT_SYMBOL}</CardTitle>
-                <p className="mt-1 text-sm text-muted-foreground">{SINGLE_PRODUCT_NAME}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                <div>
-                  <p className="text-xs text-muted-foreground">Best Bid / Ask</p>
-                  <p className="text-sm font-medium">
-                    {marketSummary.bestBid?.toFixed(2) ?? '--'} / {marketSummary.bestAsk?.toFixed(2) ?? '--'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Mid Price</p>
-                  <p className="text-sm font-medium">{marketSummary.midpoint?.toFixed(2) ?? '--'}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Spread</p>
-                  <p className="text-sm font-medium">{marketSummary.spread?.toFixed(2) ?? '--'}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Depth (Bid / Ask)</p>
-                  <p className="text-sm font-medium">
-                    {marketSummary.bidDepth} / {marketSummary.askDepth}
-                  </p>
-                </div>
-              </div>
+        {/* Order forms */}
+        <div className="lg:col-span-5 flex flex-col gap-4">
+          {/* Buy */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-gray-100">
+              <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+              <h2 className="text-sm font-semibold text-gray-900">Đặt lệnh Mua</h2>
             </div>
-          </CardHeader>
-        </Card>
-
-        <div className="grid gap-4 lg:grid-cols-12">
-          <Card className="order-2 lg:order-1 lg:col-span-5">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Sổ lệnh (Order Book)</CardTitle>
-              {orderBookLoading && <p className="text-xs text-muted-foreground">Đang tải dữ liệu realtime...</p>}
-              {orderBookError && <p className="text-xs text-rose-700">{orderBookError}</p>}
-            </CardHeader>
-            <CardContent className="space-y-4">
+            <div className="px-5 py-4 space-y-3">
               <div>
-                <p className="mb-2 text-sm font-medium text-emerald-600">Bids (Mua)</p>
-                <div className="space-y-1">
-                  {orderBook.bids.length === 0 ? (
-                    <p className="text-xs text-muted-foreground">Chưa có lệnh mua đang mở.</p>
-                  ) : (
-                    orderBook.bids.map((row) => (
-                      <div
-                        key={`bid-${row.price}`}
-                        className="grid grid-cols-3 rounded-md bg-emerald-500/5 px-2 py-1 text-sm"
-                      >
-                        <span className="font-medium text-emerald-600">{row.price.toFixed(2)}</span>
-                        <span className="text-center">{row.quantity}</span>
-                        <span className="text-right text-muted-foreground">{(row.price * row.quantity).toFixed(2)}</span>
-                      </div>
-                    ))
-                  )}
-                </div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">Giá</label>
+                <Input
+                  value={bidPrice}
+                  onChange={(e) => { setBidPrice(e.target.value); if (bidStatus.tone !== 'idle') setBidStatus(IDLE_STATUS); }}
+                  inputMode="decimal"
+                  className="h-9 text-sm"
+                />
               </div>
-
               <div>
-                <p className="mb-2 text-sm font-medium text-rose-600">Asks (Bán)</p>
-                <div className="space-y-1">
-                  {orderBook.asks.length === 0 ? (
-                    <p className="text-xs text-muted-foreground">Chưa có lệnh bán đang mở.</p>
-                  ) : (
-                    orderBook.asks.map((row) => (
-                      <div
-                        key={`ask-${row.price}`}
-                        className="grid grid-cols-3 rounded-md bg-rose-500/5 px-2 py-1 text-sm"
-                      >
-                        <span className="font-medium text-rose-600">{row.price.toFixed(2)}</span>
-                        <span className="text-center">{row.quantity}</span>
-                        <span className="text-right text-muted-foreground">{(row.price * row.quantity).toFixed(2)}</span>
-                      </div>
-                    ))
-                  )}
-                </div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">Khối lượng</label>
+                <Input
+                  value={bidVolume}
+                  onChange={(e) => { setBidVolume(e.target.value); if (bidStatus.tone !== 'idle') setBidStatus(IDLE_STATUS); }}
+                  inputMode="numeric"
+                  className="h-9 text-sm"
+                />
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="order-1 lg:order-2 lg:col-span-4">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Đặt lệnh</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-3 rounded-lg border border-emerald-200/60 bg-emerald-50/40 p-4">
-                <p className="text-sm font-semibold text-emerald-700">Bid / Mua</p>
-                <div className="space-y-2">
-                  <label className="text-xs text-muted-foreground">Giá</label>
-                  <Input
-                    value={bidPrice}
-                    onChange={(event) => {
-                      setBidPrice(event.target.value);
-                      if (bidStatus.tone !== 'idle') {
-                        setBidStatus(IDLE_STATUS);
-                      }
-                    }}
-                    inputMode="decimal"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs text-muted-foreground">Khối lượng</label>
-                  <Input
-                    value={bidVolume}
-                    onChange={(event) => {
-                      setBidVolume(event.target.value);
-                      if (bidStatus.tone !== 'idle') {
-                        setBidStatus(IDLE_STATUS);
-                      }
-                    }}
-                    inputMode="numeric"
-                  />
-                </div>
-                <Button
-                  className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
-                  onClick={handlePlaceBid}
-                  disabled={bidStatus.tone === 'loading'}
-                >
-                  {bidStatus.tone === 'loading' ? 'Đang đặt lệnh mua...' : 'Đặt lệnh Mua'}
-                </Button>
-                {bidStatus.tone !== 'idle' && (
-                  <p className={`text-xs ${statusClassName(bidStatus.tone)}`}>{bidStatus.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-3 rounded-lg border border-rose-200/60 bg-rose-50/40 p-4">
-                <p className="text-sm font-semibold text-rose-700">Ask / Bán</p>
-                <div className="space-y-2">
-                  <label className="text-xs text-muted-foreground">Giá</label>
-                  <Input
-                    value={askPrice}
-                    onChange={(event) => {
-                      setAskPrice(event.target.value);
-                      if (askStatus.tone !== 'idle') {
-                        setAskStatus(IDLE_STATUS);
-                      }
-                    }}
-                    inputMode="decimal"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs text-muted-foreground">Khối lượng</label>
-                  <Input
-                    value={askVolume}
-                    onChange={(event) => {
-                      setAskVolume(event.target.value);
-                      if (askStatus.tone !== 'idle') {
-                        setAskStatus(IDLE_STATUS);
-                      }
-                    }}
-                    inputMode="numeric"
-                  />
-                </div>
-                <Button
-                  className="w-full bg-rose-600 text-white hover:bg-rose-700"
-                  onClick={handlePlaceAsk}
-                  disabled={askStatus.tone === 'loading'}
-                >
-                  {askStatus.tone === 'loading' ? 'Đang đặt lệnh bán...' : 'Đặt lệnh Bán'}
-                </Button>
-                {askStatus.tone !== 'idle' && (
-                  <p className={`text-xs ${statusClassName(askStatus.tone)}`}>{askStatus.message}</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="order-3 lg:col-span-3">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Tóm tắt thị trường</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="rounded-md border px-3 py-2">
-                <p className="text-xs text-muted-foreground">Single product</p>
-                <p className="mt-1 font-medium">{SINGLE_PRODUCT_NAME}</p>
-              </div>
-              <div className="rounded-md border px-3 py-2">
-                <p className="text-xs text-muted-foreground">Số mức giá bid / ask</p>
-                <p className="mt-1 font-medium">
-                  {orderBook.bids.length} / {orderBook.asks.length}
+              <button
+                onClick={handlePlaceBid}
+                disabled={bidStatus.tone === 'loading'}
+                className="w-full h-9 rounded-lg bg-emerald-600 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors cursor-pointer"
+              >
+                {bidStatus.tone === 'loading' ? 'Đang đặt...' : 'Mua'}
+              </button>
+              {bidStatus.tone !== 'idle' && (
+                <p className={`text-xs ${bidStatus.tone === 'success' ? 'text-emerald-600' : bidStatus.tone === 'error' ? 'text-rose-600' : 'text-gray-400'}`}>
+                  {bidStatus.message}
                 </p>
+              )}
+            </div>
+          </div>
+
+          {/* Sell */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-gray-100">
+              <span className="inline-block h-2 w-2 rounded-full bg-rose-500" />
+              <h2 className="text-sm font-semibold text-gray-900">Đặt lệnh Bán</h2>
+            </div>
+            <div className="px-5 py-4 space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">Giá</label>
+                <Input
+                  value={askPrice}
+                  onChange={(e) => { setAskPrice(e.target.value); if (askStatus.tone !== 'idle') setAskStatus(IDLE_STATUS); }}
+                  inputMode="decimal"
+                  className="h-9 text-sm"
+                />
               </div>
-              <div className="rounded-md border px-3 py-2">
-                <p className="text-xs text-muted-foreground">Realtime feed</p>
-                <p className="mt-1 font-medium">{orderBookError ? 'Mất kết nối' : 'Đang hoạt động'}</p>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">Khối lượng</label>
+                <Input
+                  value={askVolume}
+                  onChange={(e) => { setAskVolume(e.target.value); if (askStatus.tone !== 'idle') setAskStatus(IDLE_STATUS); }}
+                  inputMode="numeric"
+                  className="h-9 text-sm"
+                />
               </div>
-            </CardContent>
-          </Card>
+              <button
+                onClick={handlePlaceAsk}
+                disabled={askStatus.tone === 'loading'}
+                className="w-full h-9 rounded-lg bg-rose-600 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50 transition-colors cursor-pointer"
+              >
+                {askStatus.tone === 'loading' ? 'Đang đặt...' : 'Bán'}
+              </button>
+              {askStatus.tone !== 'idle' && (
+                <p className={`text-xs ${askStatus.tone === 'success' ? 'text-emerald-600' : askStatus.tone === 'error' ? 'text-rose-600' : 'text-gray-400'}`}>
+                  {askStatus.message}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

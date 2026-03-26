@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import PageNav from '@/components/PageNav';
+import AppLayout from '@/components/AppLayout';
 import { useAuth } from '@/contexts/useAuth';
 import { subscribeMyMatches } from '@/lib/market';
 import type { MarketMatch } from '@/lib/types';
@@ -12,107 +10,99 @@ function formatDateTime(value: Date | null): string {
 }
 
 function getCounterpartyEmail(match: MarketMatch, userId: string): string {
-  return match.buyUserId === userId ? (match.sellUserEmail ?? 'Không rõ') : (match.buyUserEmail ?? 'Không rõ');
+  return match.buyUserId === userId
+    ? (match.sellUserEmail ?? 'Không rõ')
+    : (match.buyUserEmail ?? 'Không rõ');
 }
 
 export default function MatchesPage() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [matches, setMatches] = useState<MarketMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
-
     const unsubscribe = subscribeMyMatches(
       user.uid,
-      (nextMatches) => {
-        setMatches(nextMatches);
-        setError(null);
-        setLoading(false);
-      },
-      (nextError) => {
-        setError(nextError.message);
-        setLoading(false);
-      },
+      (nextMatches) => { setMatches(nextMatches); setError(null); setLoading(false); },
+      (nextError) => { setError(nextError.message); setLoading(false); },
     );
-
     return unsubscribe;
   }, [user]);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (signOutError) {
-      setError(signOutError instanceof Error ? signOutError.message : 'Không thể đăng xuất.');
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Khớp lệnh của tôi</h1>
-            <p className="text-sm text-muted-foreground">Danh sách giao dịch đã khớp và thông tin đối tác.</p>
-            <div className="mt-3">
-              <PageNav />
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-xs text-muted-foreground">Đăng nhập bởi</p>
-              <p className="text-sm font-medium">{user?.email}</p>
-            </div>
-            <Button variant="outline" onClick={handleSignOut}>
-              Đăng xuất
-            </Button>
-          </div>
+    <AppLayout>
+      <div className="mb-6">
+        <h1 className="text-lg font-semibold text-gray-900">Khớp lệnh</h1>
+        <p className="mt-0.5 text-sm text-gray-500">Danh sách giao dịch đã khớp và thông tin đối tác.</p>
+      </div>
+
+      {/* Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+        <div className="bg-white rounded-xl border border-gray-200 px-4 py-4 shadow-sm">
+          <p className="text-xs text-gray-500">Tổng khớp lệnh</p>
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-gray-900">{matches.length}</p>
         </div>
-      </header>
+        <div className="bg-white rounded-xl border border-gray-200 px-4 py-4 shadow-sm">
+          <p className="text-xs text-gray-500">Tổng khối lượng khớp</p>
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-gray-900">
+            {matches.reduce((sum, m) => sum + m.quantity, 0)}
+          </p>
+        </div>
+      </div>
 
-      <main className="mx-auto max-w-7xl px-4 py-6 space-y-6">
-        {loading && (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Đang tải matches...</p>
-            </CardContent>
-          </Card>
-        )}
+      {loading && (
+        <div className="bg-white rounded-xl border border-gray-200 px-5 py-10 text-center shadow-sm">
+          <p className="text-sm text-gray-400">Đang tải...</p>
+        </div>
+      )}
 
-        {error && (
-          <Card className="border-destructive/30">
-            <CardContent className="pt-6">
-              <p className="text-sm text-destructive">Lỗi tải matches: {error}</p>
-            </CardContent>
-          </Card>
-        )}
+      {error && (
+        <div className="bg-white rounded-xl border border-rose-200 px-5 py-4 shadow-sm">
+          <p className="text-sm text-rose-600">Lỗi: {error}</p>
+        </div>
+      )}
 
-        {!loading && !error && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Matches ({matches.length})</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {matches.length === 0 && (
-                <p className="text-sm text-muted-foreground">Chưa có lệnh nào được khớp.</p>
-              )}
-              {matches.map((match) => (
-                <div key={match.id} className="rounded-md border p-3 text-sm space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">Match #{match.id.slice(0, 8)}</span>
-                    <span className="text-emerald-600">Matched</span>
-                  </div>
-                  <p>Đối tác: {getCounterpartyEmail(match, user?.uid ?? '')}</p>
-                  <p>Giá: {match.price}</p>
-                  <p>Khối lượng: {match.quantity}</p>
-                  <p className="text-xs text-muted-foreground">Thời gian: {formatDateTime(match.createdAt)}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-      </main>
-    </div>
+      {!loading && !error && (
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
+            <h2 className="text-sm font-semibold text-gray-900">Lịch sử khớp lệnh</h2>
+            <span className="text-xs text-gray-400">{matches.length} giao dịch</span>
+          </div>
+
+          {matches.length === 0 ? (
+            <div className="px-5 py-12 text-center">
+              <p className="text-sm text-gray-400">Chưa có lệnh nào được khớp.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    <th className="px-5 py-2.5 text-xs font-medium text-gray-400 uppercase tracking-wide">ID</th>
+                    <th className="px-5 py-2.5 text-xs font-medium text-gray-400 uppercase tracking-wide">Đối tác</th>
+                    <th className="px-5 py-2.5 text-xs font-medium text-gray-400 uppercase tracking-wide">Giá</th>
+                    <th className="px-5 py-2.5 text-xs font-medium text-gray-400 uppercase tracking-wide">KL</th>
+                    <th className="px-5 py-2.5 text-xs font-medium text-gray-400 uppercase tracking-wide">Thời gian</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {matches.map((match) => (
+                    <tr key={match.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/60 transition-colors">
+                      <td className="px-5 py-3 text-xs font-mono text-gray-500">#{match.id.slice(0, 8)}</td>
+                      <td className="px-5 py-3 text-sm text-gray-700">{getCounterpartyEmail(match, user?.uid ?? '')}</td>
+                      <td className="px-5 py-3 text-sm font-medium tabular-nums text-gray-900">{match.price.toFixed(2)}</td>
+                      <td className="px-5 py-3 text-sm tabular-nums text-gray-700">{match.quantity}</td>
+                      <td className="px-5 py-3 text-xs text-gray-400 whitespace-nowrap">{formatDateTime(match.createdAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+    </AppLayout>
   );
 }

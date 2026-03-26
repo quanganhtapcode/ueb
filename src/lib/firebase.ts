@@ -18,10 +18,9 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
 
-// Configure Google Provider with hosted domain restriction
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
-  hd: 'vnu.edu.vn', // Restrict to vnu.edu.vn domain
+  hd: 'vnu.edu.vn',
   prompt: 'select_account'
 });
 
