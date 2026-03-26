@@ -13,7 +13,7 @@ export default function PrivacyPage() {
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">1. Giới thiệu</h2>
             <p>
-              UEB Trading Platform ("chúng tôi", "Nền tảng") cam kết bảo vệ quyền riêng tư của người dùng. Chính sách bảo mật này mô tả cách chúng tôi thu thập, sử dụng, lưu trữ và bảo vệ thông tin cá nhân của bạn khi sử dụng dịch vụ tại <strong>ueb.quanganh.org</strong>.
+              UEB Bracelet Exchange MVP ("chúng tôi", "Nền tảng") cam kết bảo vệ quyền riêng tư của người dùng. Chính sách bảo mật này mô tả cách chúng tôi thu thập, sử dụng, lưu trữ và bảo vệ thông tin cá nhân của bạn khi sử dụng dịch vụ tại <strong>ueb.quanganh.org</strong>.
             </p>
             <p>
               Chúng tôi tuân thủ các quy định về bảo vệ dữ liệu cá nhân theo Nghị định 13/2023/NĐ-CP của Chính phủ Việt Nam về bảo vệ dữ liệu cá nhân.
@@ -26,8 +26,8 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 space-y-2">
               <li>Họ tên và địa chỉ email từ tài khoản Google @vnu.edu.vn của bạn.</li>
               <li>Ảnh đại diện từ tài khoản Google (nếu có).</li>
-              <li>Nội dung tin đăng: tiêu đề, mô tả, giá cả, hình ảnh sản phẩm.</li>
-              <li>Nội dung tin nhắn trao đổi giữa người dùng trong hệ thống.</li>
+              <li>Thông tin đăng ký trao đổi vòng tay tốt nghiệp (mô tả, trạng thái, nhu cầu).</li>
+              <li>Thông tin liên hệ bạn tự nguyện chia sẻ để tiếp tục trao đổi qua chat/email sau khi ghép cặp.</li>
             </ul>
             <p className="mt-3"><strong>2.2 Thông tin thu thập tự động:</strong></p>
             <ul className="list-disc pl-6 space-y-2">
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
             <p>Thông tin thu thập được sử dụng cho các mục đích sau:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Xác thực danh tính:</strong> Đảm bảo chỉ thành viên ĐHQGHN mới có thể truy cập Nền tảng.</li>
-              <li><strong>Vận hành dịch vụ:</strong> Hiển thị thông tin người dùng, tin đăng và kết nối các bên giao dịch.</li>
+              <li><strong>Vận hành dịch vụ:</strong> Hiển thị thông tin cần thiết để ghép cặp nhu cầu trao đổi vòng tay tốt nghiệp.</li>
               <li><strong>Liên lạc:</strong> Gửi thông báo về hoạt động tài khoản, cập nhật hệ thống hoặc phản hồi hỗ trợ.</li>
               <li><strong>Bảo mật:</strong> Phát hiện và ngăn chặn các hoạt động gian lận, lạm dụng hệ thống.</li>
               <li><strong>Cải thiện dịch vụ:</strong> Phân tích hành vi sử dụng để nâng cao trải nghiệm người dùng.</li>
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
                 <strong>Google / Firebase:</strong> Nền tảng sử dụng Google Firebase để xác thực đăng nhập (Firebase Authentication) và lưu trữ dữ liệu (Cloud Firestore). Google có thể xử lý dữ liệu của bạn theo <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Chính sách bảo mật của Google</a>.
               </li>
               <li>
-                <strong>Người dùng khác:</strong> Tên, ảnh đại diện và nội dung tin đăng của bạn hiển thị công khai trong cộng đồng ĐHQGHN trên Nền tảng.
+                <strong>Người dùng khác:</strong> Một phần thông tin hồ sơ và thông tin trao đổi vòng tay có thể được hiển thị cho người dùng phù hợp trong cộng đồng ĐHQGHN để ghép cặp.
               </li>
               <li>
                 <strong>Yêu cầu pháp lý:</strong> Chúng tôi có thể tiết lộ thông tin nếu được yêu cầu bởi cơ quan nhà nước có thẩm quyền theo quy định pháp luật Việt Nam.
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Tài khoản hoạt động:</strong> Dữ liệu được lưu trữ trong suốt thời gian tài khoản tồn tại.</li>
               <li><strong>Sau khi xóa tài khoản:</strong> Thông tin cá nhân được xóa trong vòng 30 ngày. Dữ liệu phân tích tổng hợp (không định danh) có thể được giữ lại.</li>
-              <li><strong>Tin nhắn và giao dịch:</strong> Lưu trữ tối đa 12 tháng kể từ ngày tạo, sau đó tự động xóa.</li>
+              <li><strong>Dữ liệu ghép cặp và liên hệ:</strong> Lưu trữ tối đa 12 tháng kể từ ngày tạo, sau đó tự động xóa.</li>
               <li><strong>Nhật ký hệ thống:</strong> Được lưu tối đa 90 ngày cho mục đích bảo mật.</li>
             </ul>
           </section>

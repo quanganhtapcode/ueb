@@ -13,17 +13,17 @@ export default function DisclaimerPage() {
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">1. Chấp thuận điều khoản</h2>
             <p>
-              Bằng việc truy cập và sử dụng nền tảng UEB Trading Platform ("Nền tảng"), bạn xác nhận rằng bạn đã đọc, hiểu và đồng ý bị ràng buộc bởi toàn bộ các điều khoản và điều kiện được nêu trong tài liệu này. Nếu bạn không đồng ý với bất kỳ điều khoản nào, bạn không được phép sử dụng Nền tảng.
+              Bằng việc truy cập và sử dụng nền tảng UEB Bracelet Exchange MVP ("Nền tảng"), bạn xác nhận rằng bạn đã đọc, hiểu và đồng ý bị ràng buộc bởi toàn bộ các điều khoản và điều kiện được nêu trong tài liệu này. Nếu bạn không đồng ý với bất kỳ điều khoản nào, bạn không được phép sử dụng Nền tảng.
             </p>
           </section>
 
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">2. Phạm vi dịch vụ</h2>
             <p>
-              UEB Trading Platform là một nền tảng giao dịch nội bộ dành riêng cho sinh viên, giảng viên và cán bộ thuộc hệ thống Đại học Quốc gia Hà Nội (ĐHQGHN). Nền tảng cung cấp môi trường để người dùng đăng tin mua bán, trao đổi hàng hóa và dịch vụ trong phạm vi cộng đồng đại học.
+              Nền tảng là phiên bản MVP dành cho sinh viên ĐHQGHN đã/chuẩn bị tốt nghiệp, nhằm kết nối trao đổi một sản phẩm duy nhất là <strong>vòng tay tốt nghiệp</strong>. Hệ thống chỉ hỗ trợ ghép cặp nhu cầu giữa người dùng trong cộng đồng.
             </p>
             <p>
-              Nền tảng <strong>không phải</strong> là sàn giao dịch tài chính, không cung cấp dịch vụ môi giới chứng khoán, không xử lý thanh toán và không có tư cách pháp lý của một tổ chức tài chính được cấp phép.
+              Sau khi ghép cặp, các bên chủ động trao đổi chi tiết qua kênh chat/email do hai bên thống nhất. Nền tảng <strong>không</strong> xử lý thanh toán, không đại diện pháp lý cho bất kỳ bên nào và không phải sàn thương mại điện tử.
             </p>
           </section>
 
@@ -42,9 +42,8 @@ export default function DisclaimerPage() {
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">4. Quy tắc ứng xử của người dùng</h2>
             <p>Khi sử dụng Nền tảng, người dùng cam kết:</p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Chỉ đăng tin về hàng hóa và dịch vụ hợp pháp theo quy định của pháp luật Việt Nam.</li>
-              <li>Cung cấp thông tin trung thực, chính xác về hàng hóa, giá cả và điều kiện giao dịch.</li>
-              <li>Không đăng tin về vũ khí, chất kích thích, hàng giả, hàng nhái hoặc bất kỳ mặt hàng bị cấm nào.</li>
+              <li>Chỉ đăng thông tin liên quan đến vòng tay tốt nghiệp hợp pháp theo quy định pháp luật Việt Nam.</li>
+              <li>Cung cấp thông tin trung thực, chính xác về tình trạng vòng tay và nhu cầu trao đổi.</li>
               <li>Không sử dụng Nền tảng để lừa đảo, quấy rối hoặc gây hại cho người dùng khác.</li>
               <li>Không can thiệp vào hệ thống kỹ thuật, cố tình gây lỗi hoặc khai thác lỗ hổng bảo mật.</li>
               <li>Tôn trọng quyền riêng tư và thông tin cá nhân của người dùng khác.</li>
@@ -54,24 +53,24 @@ export default function DisclaimerPage() {
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">5. Giới hạn trách nhiệm</h2>
             <p>
-              UEB Trading Platform đóng vai trò là trung gian kết nối người mua và người bán. Nền tảng <strong>không chịu trách nhiệm</strong> về:
+              Nền tảng chỉ đóng vai trò kết nối các bên có nhu cầu trao đổi vòng tay tốt nghiệp. Nền tảng <strong>không chịu trách nhiệm</strong> về:
             </p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Chất lượng, tình trạng thực tế của hàng hóa hoặc dịch vụ được đăng trên Nền tảng.</li>
-              <li>Kết quả của các giao dịch được thỏa thuận giữa người dùng với nhau.</li>
-              <li>Thiệt hại phát sinh từ tranh chấp giữa các bên tham gia giao dịch.</li>
-              <li>Việc người dùng vi phạm quy định pháp luật trong quá trình giao dịch.</li>
+              <li>Chất lượng và tình trạng thực tế của vòng tay được người dùng cung cấp thông tin.</li>
+              <li>Kết quả trao đổi do các bên tự thỏa thuận qua chat/email hoặc kênh liên hệ riêng.</li>
+              <li>Thiệt hại phát sinh từ tranh chấp giữa các bên tham gia trao đổi.</li>
+              <li>Việc người dùng vi phạm quy định pháp luật trong quá trình trao đổi.</li>
               <li>Mất mát dữ liệu do sự cố kỹ thuật ngoài tầm kiểm soát của Nền tảng.</li>
             </ul>
             <p>
-              Mọi giao dịch được thực hiện hoàn toàn dựa trên sự tự nguyện và thỏa thuận trực tiếp giữa các bên. Nền tảng khuyến khích người dùng kiểm tra kỹ thông tin và gặp mặt trực tiếp tại địa điểm công cộng, an toàn khi thực hiện trao đổi.
+              Mọi trao đổi được thực hiện hoàn toàn dựa trên sự tự nguyện và thỏa thuận trực tiếp giữa các bên. Nền tảng khuyến khích người dùng kiểm tra kỹ thông tin và gặp mặt trực tiếp tại địa điểm công cộng, an toàn khi thực hiện trao đổi.
             </p>
           </section>
 
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">6. Quyền sở hữu trí tuệ</h2>
             <p>
-              Toàn bộ nội dung, giao diện, mã nguồn, logo và tên thương hiệu của UEB Trading Platform là tài sản của nhóm phát triển và được bảo hộ theo quy định về sở hữu trí tuệ. Người dùng không được sao chép, phân phối hoặc sử dụng thương mại bất kỳ phần nào của Nền tảng khi chưa được cấp phép bằng văn bản.
+              Toàn bộ nội dung, giao diện, mã nguồn, logo và tên thương hiệu của Nền tảng là tài sản của nhóm phát triển và được bảo hộ theo quy định về sở hữu trí tuệ. Người dùng không được sao chép, phân phối hoặc sử dụng thương mại bất kỳ phần nào của Nền tảng khi chưa được cấp phép bằng văn bản.
             </p>
             <p>
               Nội dung do người dùng đăng tải (hình ảnh, mô tả, thông tin sản phẩm) vẫn thuộc quyền sở hữu của người đăng. Bằng cách đăng tải, người dùng cấp cho Nền tảng quyền hiển thị nội dung đó cho mục đích vận hành dịch vụ.
